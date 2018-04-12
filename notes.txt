@@ -1,0 +1,3 @@
+planar cut the o2 rich layer for example, while keeping hypoxic layer intact 
+
+play with zculling / render queue order to show "overlay" effects

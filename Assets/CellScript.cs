@@ -8,6 +8,7 @@ public class CellScript : MonoBehaviour {
     private Color color;
     private CellScript parent;
     private int O2Level;
+
     //end agent params (position in transform)
     private Material currentMaterial;
 
