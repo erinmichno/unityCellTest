@@ -7,7 +7,7 @@ Material:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_Name: CellMat
-  m_Shader: {fileID: 4800000, guid: 41dbeb70c4424374e8e43bcea9d550b0, type: 3}
+  m_Shader: {fileID: 4800000, guid: 790ffc883238e744ba5c881067554000, type: 3}
   m_ShaderKeywords: _ALPHAPREMULTIPLY_ON
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 1
@@ -72,5 +72,5 @@ Material:
     - _UVSec: 0
     - _ZWrite: 0
     m_Colors:
-    - _Color: {r: 0.56120694, g: 0, b: 0.6838235, a: 1}
+    - _Color: {r: 0.56120694, g: 0, b: 0.6838235, a: 0.497}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}

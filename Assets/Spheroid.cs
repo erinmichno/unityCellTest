@@ -22,7 +22,13 @@ public class Spheroid : MonoBehaviour {
 
         if(currentCells.Count == 0 || transform.childCount == 0)
         {
-            GenerateSomeCells();
+            // GenerateSomeCells();
+            // Generate72Cells();
+            GenerateFibSphere(13, 1, true);
+            GenerateFibSphere(50, 2);
+            GenerateFibSphere(160, 3);
+            GenerateFibSphere(270, 4);
+            GenerateFibSphere(380, 5);
         }
         //do something about children...
 		
@@ -57,8 +63,65 @@ public class Spheroid : MonoBehaviour {
         }
     }
 
+    void Generate72Cells()
+    {
+        currentCells.Clear();
+        CellScript[] cells = transform.GetComponentsInChildren<CellScript>();
+        foreach (CellScript c in cells)
+        {
+            GameObject.Destroy(c.gameObject);
+        }
+        Vector3[] cellposUnitSphere = Get72VecPlace();
+        foreach(Vector3 p in cellposUnitSphere)
+        {
+           Vector3 pos  = p  / 0.4f;
+            CellScript cs = GameObject.Instantiate<CellScript>(cellTemplate, pos, Quaternion.identity, this.transform);
+            currentCells.Add(cs);
+        }
+    }
+    void GenerateFibSphere(int numberOfSphere, float distanceOut, bool clear = false)
+    {
+        if (clear)
+        {
+            currentCells.Clear();
+            CellScript[] cells = transform.GetComponentsInChildren<CellScript>();
+            foreach (CellScript c in cells)
+            {
+                GameObject.Destroy(c.gameObject);
+            }
+        }
+        Vector3[] cellposUnitSphere = fibonacciSpherePlacement(numberOfSphere);
+        
+        foreach (Vector3 p in cellposUnitSphere)
+        {
+            Vector3 pos = p * distanceOut;
+            CellScript cs = GameObject.Instantiate<CellScript>(cellTemplate, pos, Quaternion.identity, this.transform);
+            currentCells.Add(cs);
+        }
 
-    Vector3[] Get72VecPlace()
+    }
+
+    Vector3[] fibonacciSpherePlacement(int numSamples)
+    {
+        Vector3[] returnval = new Vector3[numSamples];
+
+        float offset = 2.0f / numSamples;
+        float increment = Mathf.PI * (3.0f - Mathf.Sqrt(5));
+        for(int i = 0; i < numSamples; ++i)
+        {
+            Vector3 vec = Vector3.zero;
+            vec.y = ((i * offset) - 1) + (offset / 2.0f);
+            float r = Mathf.Sqrt(1 - vec.y * vec.y);
+            float phi = ((i + 1) % numSamples) * increment;
+            vec.x = Mathf.Cos(phi) * r;
+            vec.z = Mathf.Sin(phi) * r;
+            returnval[i] = vec;
+        }
+        return returnval;
+    }
+
+
+    Vector3[] Get72VecPlace() 
     {
         //assuming radius = 0.196078624
         return new Vector3[] { new Vector3(0.365142892803682839000000000000f, 0.368988570632518387000000000000f, -0.613846624222014858000000000000f),
