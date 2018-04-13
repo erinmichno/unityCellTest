@@ -15,7 +15,7 @@ public class CellScript : MonoBehaviour {
     private Rigidbody rb;
     private float DeathAge = 100;
     private float SplitAge = 50;
-    private float ageRate = 1.0f;
+    private float ageRate = 10.0f;
     
     
     
@@ -34,17 +34,17 @@ public class CellScript : MonoBehaviour {
         currentMaterial = GetComponent<MeshRenderer>().material;
         parentSpheroid = FindObjectOfType<Spheroid>(); //only showing one at the moment
         Reset();
-        
-        
-	}
+        age = UnityEngine.Random.Range(1, 100);
+
+    }
 
     public void Reset()
     {
         rb = GetComponent<Rigidbody>();
-        UnityEngine.Random.InitState((int)(Time.timeSinceLevelLoad * 1000));
-        age = UnityEngine.Random.Range(1, 100);
+       
+        age = 0;
         DeathAge = UnityEngine.Random.Range(50, 500);
-        SplitAge = UnityEngine.Random.Range(25, 1000);
+        SplitAge = UnityEngine.Random.Range(25, 700);
     }
 
     public void SetGenerationLevel(int GenLevel)
@@ -63,7 +63,7 @@ public class CellScript : MonoBehaviour {
 
     bool IsoValue(float val)
     {
-       if(val < -0.6)
+       if(val < -0.6f)
         {
             return true;
         }
@@ -73,13 +73,13 @@ public class CellScript : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        float val = Noise.Simplex3D(transform.position, 2.0f).value; //frequency = zoom ish
-        float val01 = val * 0.5f + 0.5f;
-        aboveISO = IsoValue(val);
-        Color grey = Color.grey*val01 + Color.red*(1 - val01);
-        grey.a = aboveISO ? 1.0f : 0.1f;// 0.1f;
-        TurnOnOffChildren(aboveISO);
-        currentMaterial.SetColor("_Color", grey);// aboveISO ? Color.cyan : grey);
+        //float val = Noise.Simplex3D(transform.position, 2.0f).value; //frequency = zoom ish
+        //float val01 = val * 0.5f + 0.5f;
+        //aboveISO = IsoValue(val);
+        //Color grey = Color.grey*val01 + Color.red*(1 - val01);
+        //grey.a = aboveISO ? 1.0f : 0.1f;// 0.1f;
+        //TurnOnOffChildren(aboveISO);
+        //currentMaterial.SetColor("_Color", grey);// aboveISO ? Color.cyan : grey);
 
         age += Time.deltaTime * ageRate;
 
@@ -89,7 +89,7 @@ public class CellScript : MonoBehaviour {
         }
         if(age > SplitAge)
         {
-
+            parentSpheroid.SplitCell(this);
         }
         UpdateScale();
         Vector3 noise = UnityEngine.Random.insideUnitSphere;

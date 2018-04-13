@@ -137,7 +137,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6901b2e852e463d4687f401c9a819f5d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cellTemplate: {fileID: 861197861}
+  cellTemplate: {fileID: 114909553696957632, guid: 4bd9262e1862c1d4bb76e7a2d208f4df,
+    type: 2}
 --- !u!4 &48944821
 Transform:
   m_ObjectHideFlags: 0
@@ -340,12 +341,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &861197861 stripped
-MonoBehaviour:
-  m_PrefabParentObject: {fileID: 114909553696957632, guid: 4bd9262e1862c1d4bb76e7a2d208f4df,
-    type: 2}
-  m_PrefabInternal: {fileID: 1041308292}
-  m_Script: {fileID: 11500000, guid: 9e31e6df323e591499855e3387e551d9, type: 3}
 --- !u!1 &905385028
 GameObject:
   m_ObjectHideFlags: 0

@@ -12,6 +12,8 @@ public class Spheroid : MonoBehaviour {
     float currentRad = 1.01f;
     float startingRad = 1.01f;
 	void Start () {
+
+        UnityEngine.Random.InitState(System.DateTime.Now.Millisecond);
         numCells = 64;
         startingRad = currentRad;
         currentCells.Clear();
@@ -203,12 +205,25 @@ public class Spheroid : MonoBehaviour {
     public void KillCell(CellScript cellToDie)
     {
         currentCells.Remove(cellToDie);
-        GameObject.Destroy(cellToDie.gameObject);
+        GameObject.Destroy(cellToDie.gameObject, 2.0f);
     }
 
     public void SplitCell(CellScript cellToSplit)
     {
         cellToSplit.SetScale(0.5f);
+        cellToSplit.Reset();
+        Vector3 posoffset = Random.onUnitSphere * 0.25f;
+        CellScript newCell = GameObject.Instantiate<CellScript>(cellToSplit);
+        cellToSplit.transform.position += posoffset;
+        newCell.transform.position -= posoffset;
+        newCell.Reset();
+        //increment generation level
+        newCell.SetGenerationLevel(cellToSplit.GenerationLevel + 1);
+        cellToSplit.SetGenerationLevel(cellToSplit.GenerationLevel + 1);
+        currentCells.Add(newCell);
+        newCell.transform.parent = this.transform;
+
+
     }
     
 }
