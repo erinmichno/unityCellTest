@@ -27,8 +27,10 @@ public class Spheroid : MonoBehaviour {
             GenerateFibSphere(13, 1, true);
             GenerateFibSphere(50, 2);
             GenerateFibSphere(160, 3);
-            GenerateFibSphere(270, 4);
+            GenerateFibSphere(250, 4);
             GenerateFibSphere(380, 5);
+            GenerateFibSphere(450, 6);
+          
         }
         //do something about children...
 		
@@ -196,6 +198,17 @@ public class Spheroid : MonoBehaviour {
   new Vector3(-0.054928033258031180900000000000f, 0.276712320841883130000000000000f, 0.385701050314073257000000000000f),
   new Vector3(-0.220429137227870831000000000000f, 0.627123099039437637000000000000f, 0.452125189853263998000000000000f),
   new Vector3(-0.326082659577084266000000000000f, 0.307659394611485448000000000000f, 0.667312050783284594000000000000f)};
+    }
+
+    public void KillCell(CellScript cellToDie)
+    {
+        currentCells.Remove(cellToDie);
+        GameObject.Destroy(cellToDie.gameObject);
+    }
+
+    public void SplitCell(CellScript cellToSplit)
+    {
+        cellToSplit.SetScale(0.5f);
     }
     
 }

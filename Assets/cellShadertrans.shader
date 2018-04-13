@@ -8,13 +8,13 @@
 	SubShader {
 		Tags { "RenderType"="Transparent" "Queue" = "Transparent" }
 		LOD 200
-		Cull Off
+		//Cull Off
 		ZWrite Off
 		Blend SrcAlpha OneMinusSrcAlpha
 
 		CGPROGRAM
 		// Physically based Standard lighting model, and enable shadows on all light types
-		#pragma surface surf Standard fullforwardshadows alpha:fade
+		#pragma surface surf Standard  alpha:fade
 
 		// Use shader model 3.0 target, to get nicer looking lighting
 		#pragma target 3.0
