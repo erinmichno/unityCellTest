@@ -4,6 +4,13 @@ using UnityEngine;
 
 
 public class Spheroid : MonoBehaviour {
+    
+    const int CutTypeStraight = 0;
+    const int CutTypeO2Based = 1;
+    const int CutTypeDataPt1 = 1 << 1;
+    const int CutTypeDataPt2 = 1 << 2;
+
+    public int planeCutType = CutTypeStraight;
 
     public CellScript cellTemplate;
     private int numCells;
@@ -11,6 +18,10 @@ public class Spheroid : MonoBehaviour {
     // Use this for initialization
     float currentRad = 1.01f;
     float startingRad = 1.01f;
+    public CutPlane cutPlane;
+    public float O2Threshold = 20;
+
+
 	void Start () {
 
         UnityEngine.Random.InitState(System.DateTime.Now.Millisecond);
@@ -35,8 +46,11 @@ public class Spheroid : MonoBehaviour {
           
         }
         //do something about children...
-		
-	}
+
+       // UpdateVisibleCells();
+
+
+    }
 
     void GenerateSomeCells()
     {
@@ -225,5 +239,22 @@ public class Spheroid : MonoBehaviour {
 
 
     }
+
+    //public void UpdateVisibleCells()
+    //{
+    //    //cutPlane
+
+    //    foreach(CellScript cell in currentCells)
+    //    {
+    //        //if o2  check that fist
+    //        //if 
+
+    //       bool abovePlane = cutPlane.TestCullWithPlane(cell.transform.position, cell.transform.lossyScale.x);
+       
+            
+
+            
+    //    }
+    //}
     
 }

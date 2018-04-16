@@ -7,7 +7,7 @@ public class CellScript : MonoBehaviour {
 
     //agent params
     public Color color;  
-    public int O2Level;
+    public float O2Level;
     public float age = 0;
     public int GenerationLevel { get { return generationLevel; } }
     public int anInterestingParameter;
@@ -27,15 +27,20 @@ public class CellScript : MonoBehaviour {
 
     bool aboveISO = false;
 
+    public MeshRenderer meshRenderer;
 
+    private void Awake()
+    {
+        meshRenderer = GetComponent<MeshRenderer>();
+    }
 
-	// Use this for initialization
-	void Start () {
+    // Use this for initialization
+    void Start () {
         currentMaterial = GetComponent<MeshRenderer>().material;
         parentSpheroid = FindObjectOfType<Spheroid>(); //only showing one at the moment
         Reset();
         age = UnityEngine.Random.Range(1, 100);
-
+        
     }
 
     public void Reset()
@@ -44,7 +49,7 @@ public class CellScript : MonoBehaviour {
        
         age = 0;
         DeathAge = UnityEngine.Random.Range(50, 500);
-        SplitAge = UnityEngine.Random.Range(25, 700);
+        SplitAge = UnityEngine.Random.Range(25, 600);
     }
 
     public void SetGenerationLevel(int GenLevel)
@@ -81,6 +86,13 @@ public class CellScript : MonoBehaviour {
         //TurnOnOffChildren(aboveISO);
         //currentMaterial.SetColor("_Color", grey);// aboveISO ? Color.cyan : grey);
 
+        Color cellColor = (O2Level > parentSpheroid.O2Threshold) ? Color.red : Color.blue;
+      cellColor.a =  ( parentSpheroid.cutPlane.TestCullWithPlane(transform.position, transform.lossyScale.x))? 0.1f : 1.0f;
+
+        O2Level = TestO2ThresholdPositionBased(parentSpheroid);
+        currentMaterial.SetColor("_Color", cellColor);
+       
+
         age += Time.deltaTime * ageRate;
 
         if(age > DeathAge)
@@ -108,5 +120,11 @@ public class CellScript : MonoBehaviour {
             float v = Mathf.Min(1.0f, transform.localScale.x + Time.deltaTime*0.5f);
             SetScale(v);
         }
+    }
+
+
+    float TestO2ThresholdPositionBased(Spheroid parent)
+    {
+      return ((transform.position - parentSpheroid.transform.position).sqrMagnitude);
     }
 }

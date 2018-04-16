@@ -32,13 +32,16 @@ public class ExtendedFlycam : MonoBehaviour
 
     void Start()
     {
-        Screen.lockCursor = true;
+       // Screen.lockCursor = true;
     }
 
     void Update()
     {
-        rotationX += Input.GetAxis("Mouse X") * cameraSensitivity * Time.deltaTime;
-        rotationY += Input.GetAxis("Mouse Y") * cameraSensitivity * Time.deltaTime;
+        if (Input.GetMouseButton(0))
+        {
+            rotationX += Input.GetAxis("Mouse X") * cameraSensitivity * Time.deltaTime;
+            rotationY += Input.GetAxis("Mouse Y") * cameraSensitivity * Time.deltaTime;
+        }
         rotationY = Mathf.Clamp(rotationY, -90, 90);
 
         transform.localRotation = Quaternion.AngleAxis(rotationX, Vector3.up);
@@ -71,7 +74,7 @@ public class ExtendedFlycam : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.End))
         {
-            Screen.lockCursor = (Screen.lockCursor == false) ? true : false;
+          //  Screen.lockCursor = (Screen.lockCursor == false) ? true : false;
         }
     }
 }
