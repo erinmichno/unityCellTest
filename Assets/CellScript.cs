@@ -80,27 +80,31 @@ public class CellScript : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        //float val = Noise.Simplex3D(transform.position, 2.0f).value; //frequency = zoom ish
-        //float val01 = val * 0.5f + 0.5f;
-        //aboveISO = IsoValue(val);
-        //Color grey = Color.grey*val01 + Color.red*(1 - val01);
+        float val = Noise.Simplex3D(transform.position, 2.0f).value; //frequency = zoom ish
+        float val01 = val * 0.5f + 0.5f;
+        aboveISO = IsoValue(val);
+        Color grey = Color.white * val01; //+ Color.red*(1 - val01);
         //grey.a = aboveISO ? 1.0f : 0.1f;// 0.1f;
         //TurnOnOffChildren(aboveISO);
         //currentMaterial.SetColor("_Color", grey);// aboveISO ? Color.cyan : grey);
 
         O2Level = TestO2ThresholdPositionBased(parentSpheroid);
 
-        Color cellColor = (O2Level > parentSpheroid.O2Threshold) ? Color.red : Color.blue;
+        Color cellColor = parentSpheroid.showO2.isOn ? (O2Level > parentSpheroid.O2Threshold) ? Color.red : Color.blue : grey;
+
+
+
         cellColor = anInterestingParameter > 0 && parentSpheroid.showParam1.isOn ? Color.green : cellColor;
         bool cullIt = (parentSpheroid.CutWithPlanes(transform.position, transform.lossyScale.x)) && !((O2Level <= parentSpheroid.O2Threshold) && !parentSpheroid.cutAllParams.isOn);
         //cellColor.a = cullIt ? 0.1f : 1.0f;
         CullItems(cullIt, parentSpheroid.transparentCull.isOn);
       
         
+        
 
     
         
-        cellColor.a = currentMaterial.color.a;
+        cellColor.a = Mathf.Min(currentMaterial.color.a, cellColor.a);
         currentMaterial.color = cellColor;
 
          age += Time.deltaTime * ageRate;

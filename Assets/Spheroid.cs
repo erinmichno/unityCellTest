@@ -29,6 +29,7 @@ public class Spheroid : MonoBehaviour {
     public UnityEngine.UI.Toggle cutAllParams;
     public UnityEngine.UI.Toggle transparentCull;
     public UnityEngine.UI.Toggle showParam1;
+    public UnityEngine.UI.Toggle showO2;
 
 
     void Start () {
