@@ -87,7 +87,11 @@ public class CellScript : MonoBehaviour {
         //currentMaterial.SetColor("_Color", grey);// aboveISO ? Color.cyan : grey);
 
         Color cellColor = (O2Level > parentSpheroid.O2Threshold) ? Color.red : Color.blue;
-      cellColor.a =  ( parentSpheroid.cutPlane.TestCullWithPlane(transform.position, transform.lossyScale.x))? 0.1f : 1.0f;
+        cellColor.a = (parentSpheroid.CutWithPlanes(transform.position, transform.lossyScale.x))? 0.1f : 1.0f;
+        if((O2Level <= parentSpheroid.O2Threshold) && !parentSpheroid.cutAllParams.isOn)
+        {
+            cellColor.a = 1.0f;
+        }
 
         O2Level = TestO2ThresholdPositionBased(parentSpheroid);
         currentMaterial.SetColor("_Color", cellColor);

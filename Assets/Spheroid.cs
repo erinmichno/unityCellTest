@@ -19,8 +19,14 @@ public class Spheroid : MonoBehaviour {
     float currentRad = 1.01f;
     float startingRad = 1.01f;
     public CutPlane cutPlane;
+    public CutPlane cutPlane2;
     public float O2Threshold = 20;
 
+    private bool cutWithPlane1 = false;
+    private bool cutWithPlane2 = false;
+    public UnityEngine.UI.Toggle togglePlane1;
+    public UnityEngine.UI.Toggle togglePlane2;
+    public UnityEngine.UI.Toggle cutAllParams;
 
 	void Start () {
 
@@ -257,4 +263,27 @@ public class Spheroid : MonoBehaviour {
     //    }
     //}
     
+
+   
+
+    public bool CutWithPlanes(Vector3 pos, float r)
+    {
+        bool plane1 = false;
+        bool plane2 = false;
+        if(togglePlane1.isOn)
+        {
+
+            plane1 = cutPlane.TestCullWithPlane(pos, r);
+        }
+        if(togglePlane2.isOn)
+        {
+            plane2 = cutPlane2.TestCullWithPlane(pos, r);
+        }
+        if(togglePlane1.isOn && togglePlane2.isOn)
+        {
+            return plane1 && plane2;
+        }
+        return plane1 || plane2; 
+      //  return plane1 || plane2;
+    }
 }

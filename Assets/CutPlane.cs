@@ -10,10 +10,10 @@ public class CutPlane : MonoBehaviour {
 
     Vector3 lastNormal;
     Vector3 lastPositon;
-    Spheroid spheroid;
+
 	// Use this for initialization
 	void Start () {
-        spheroid = FindObjectOfType<Spheroid>(); // only one in demo
+     
 		
 	}
 	
@@ -21,11 +21,7 @@ public class CutPlane : MonoBehaviour {
 	void Update () {
         //use position and normal to define the plane
         d = -(Vector3.Dot(Normal, transform.position));
-        if(lastNormal != Normal || lastPositon != transform.position )
-        {
-            //recalulate
-            //spheroid.UpdateVisibleCells();
-        }
+        
 	}
 
     private void LateUpdate()
