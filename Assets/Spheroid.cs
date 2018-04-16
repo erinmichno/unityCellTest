@@ -27,8 +27,11 @@ public class Spheroid : MonoBehaviour {
     public UnityEngine.UI.Toggle togglePlane1;
     public UnityEngine.UI.Toggle togglePlane2;
     public UnityEngine.UI.Toggle cutAllParams;
+    public UnityEngine.UI.Toggle transparentCull;
+    public UnityEngine.UI.Toggle showParam1;
 
-	void Start () {
+
+    void Start () {
 
         UnityEngine.Random.InitState(System.DateTime.Now.Millisecond);
         numCells = 64;

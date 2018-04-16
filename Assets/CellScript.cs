@@ -40,7 +40,9 @@ public class CellScript : MonoBehaviour {
         parentSpheroid = FindObjectOfType<Spheroid>(); //only showing one at the moment
         Reset();
         age = UnityEngine.Random.Range(1, 100);
-        
+        anInterestingParameter = (transform.position - new Vector3(4, 6, 2)).sqrMagnitude < 25 ? 1 : 0;
+
+
     }
 
     public void Reset()
@@ -86,18 +88,22 @@ public class CellScript : MonoBehaviour {
         //TurnOnOffChildren(aboveISO);
         //currentMaterial.SetColor("_Color", grey);// aboveISO ? Color.cyan : grey);
 
-        Color cellColor = (O2Level > parentSpheroid.O2Threshold) ? Color.red : Color.blue;
-        cellColor.a = (parentSpheroid.CutWithPlanes(transform.position, transform.lossyScale.x))? 0.1f : 1.0f;
-        if((O2Level <= parentSpheroid.O2Threshold) && !parentSpheroid.cutAllParams.isOn)
-        {
-            cellColor.a = 1.0f;
-        }
-
         O2Level = TestO2ThresholdPositionBased(parentSpheroid);
-        currentMaterial.SetColor("_Color", cellColor);
-       
 
-        age += Time.deltaTime * ageRate;
+        Color cellColor = (O2Level > parentSpheroid.O2Threshold) ? Color.red : Color.blue;
+        cellColor = anInterestingParameter > 0 && parentSpheroid.showParam1.isOn ? Color.green : cellColor;
+        bool cullIt = (parentSpheroid.CutWithPlanes(transform.position, transform.lossyScale.x)) && !((O2Level <= parentSpheroid.O2Threshold) && !parentSpheroid.cutAllParams.isOn);
+        //cellColor.a = cullIt ? 0.1f : 1.0f;
+        CullItems(cullIt, parentSpheroid.transparentCull.isOn);
+      
+        
+
+    
+        
+        cellColor.a = currentMaterial.color.a;
+        currentMaterial.color = cellColor;
+
+         age += Time.deltaTime * ageRate;
 
         if(age > DeathAge)
         {
@@ -130,5 +136,30 @@ public class CellScript : MonoBehaviour {
     float TestO2ThresholdPositionBased(Spheroid parent)
     {
       return ((transform.position - parentSpheroid.transform.position).sqrMagnitude);
+    }
+
+    void CullItems(bool cullit, bool doTransparentOption = false)
+    {
+        MeshRenderer[] mrs = GetComponentsInChildren<MeshRenderer>();
+        if (doTransparentOption)
+        {
+            foreach (MeshRenderer mr in mrs)
+            {
+                mr.enabled = true;
+                Color c = mr.material.color;
+                c.a = cullit ? 0.1f : 1.0f;
+                mr.material.color = c;
+            }
+        }
+        else
+        {
+            foreach (MeshRenderer mr in mrs)
+            {
+                mr.enabled = !cullit;
+                Color c = mr.material.color;
+                c.a =  1.0f;
+                mr.material.color = c;
+            }
+        }
     }
 }
