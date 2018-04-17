@@ -30,7 +30,9 @@ public class Spheroid : MonoBehaviour {
     public UnityEngine.UI.Toggle transparentCull;
     public UnityEngine.UI.Toggle showParam1;
     public UnityEngine.UI.Toggle showO2;
-
+    public UnityEngine.UI.Toggle ShowGeneration;
+    public int minGeneration = 0;
+    public int maxGeneration = 20;
 
     void Start () {
 

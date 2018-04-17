@@ -87,7 +87,9 @@ public class CellScript : MonoBehaviour {
         //grey.a = aboveISO ? 1.0f : 0.1f;// 0.1f;
         //TurnOnOffChildren(aboveISO);
         //currentMaterial.SetColor("_Color", grey);// aboveISO ? Color.cyan : grey);
-
+        Vector4 ageVec = new Vector4(generationLevel, age, parentSpheroid.minGeneration, parentSpheroid.maxGeneration);
+        currentMaterial.SetVector("_GenAgeMinMax", ageVec);
+        currentMaterial.SetInt("_UseAgeVis", parentSpheroid.ShowGeneration.isOn ? 1 : 0);
         O2Level = TestO2ThresholdPositionBased(parentSpheroid);
 
         Color cellColor = parentSpheroid.showO2.isOn ? (O2Level > parentSpheroid.O2Threshold) ? Color.red : Color.blue : grey;
