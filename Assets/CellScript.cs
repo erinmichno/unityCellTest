@@ -51,7 +51,7 @@ public class CellScript : MonoBehaviour {
        
         age = 0;
         DeathAge = UnityEngine.Random.Range(50, 500);
-        SplitAge = UnityEngine.Random.Range(25, 600);
+        SplitAge = UnityEngine.Random.Range(25, 550);
     }
 
     public void SetGenerationLevel(int GenLevel)
@@ -97,7 +97,7 @@ public class CellScript : MonoBehaviour {
 
 
         cellColor = anInterestingParameter > 0 && parentSpheroid.showParam1.isOn ? Color.green : cellColor;
-        bool cullIt = (parentSpheroid.CutWithPlanes(transform.position, transform.lossyScale.x)) && !((O2Level <= parentSpheroid.O2Threshold) && !parentSpheroid.cutAllParams.isOn);
+        bool cullIt = (parentSpheroid.CutWithPlanesBubble(transform.position, transform.lossyScale.x)) && !((O2Level <= parentSpheroid.O2Threshold) && !parentSpheroid.cutAllParams.isOn);
         //cellColor.a = cullIt ? 0.1f : 1.0f;
         CullItems(cullIt, parentSpheroid.transparentCull.isOn);
       
@@ -153,7 +153,7 @@ public class CellScript : MonoBehaviour {
             {
                 mr.enabled = true;
                 Color c = mr.material.color;
-                c.a = cullit ? 0.1f : 1.0f;
+                c.a = cullit ? parentSpheroid.TranparentCullColor : 1.0f;
                 mr.material.color = c;
             }
         }

@@ -31,8 +31,12 @@ public class Spheroid : MonoBehaviour {
     public UnityEngine.UI.Toggle showParam1;
     public UnityEngine.UI.Toggle showO2;
     public UnityEngine.UI.Toggle ShowGeneration;
+    public UnityEngine.UI.Toggle BubbleCull;
     public int minGeneration = 0;
     public int maxGeneration = 20;
+    public float BubbleRadius = 4.0f;
+    [Range(0.0f, 1.0f)]
+    public float TranparentCullColor = 0.2f;
 
     void Start () {
 
@@ -272,8 +276,21 @@ public class Spheroid : MonoBehaviour {
 
    
 
-    public bool CutWithPlanes(Vector3 pos, float r)
+    public bool CutWithPlanesBubble(Vector3 pos, float r)
     {
+        if(BubbleCull.isOn)
+        {
+           Vector3 camPos = Camera.main.transform.position;
+            //if sphere is inside cull
+            //If radii A+B >= center / center distance
+           if( BubbleRadius + r >= (camPos - pos).magnitude)
+            {
+                //inside 
+                return true;
+            }
+            return false;
+        }
+
         bool plane1 = false;
         bool plane2 = false;
         if(togglePlane1.isOn)
