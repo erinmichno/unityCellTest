@@ -1,0 +1,91 @@
+﻿// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSMain
+#pragma kernel CSTempInit
+
+// Create a RenderTexture with enableRandomWrite flag and set it
+// with cs.SetTexture
+StructuredBuffer<float4> SeedBuffer;
+RWTexture2D<float4> Result;
+int _width;
+int _seedBufferWidth;
+
+//float4 EncodeData(in float2 coord, in float3 color)
+//{
+//	float4 ret = float4(0.0, 0.0, 0.0, 0.0);
+//	ret.xy = coord;
+//	ret.z = floor(color.x * 255.0) * 256.0 + floor(color.y * 255.0);
+//	ret.w = floor(color.z * 255.0);
+//	return ret;
+//}
+//
+//
+//void DecodeData(in float4 data, out float2 coord, out float3 color)
+//{
+//	coord = data.xy;
+//	color.x = floor(data.z / 256.0) / 255.0;
+//	color.y = fmod(data.z, 256.0) / 255.0;
+//	color.z = fmod(data.w, 256.0) / 255.0;
+//}
+
+
+//step length starts texRes/2  and /2 for each loop until 1  ie if tex is 128 then will call this
+// 64/32/16/8/4/2/1  (7 times)
+float4 JFAIteration(in float2 fragCoord, in float stepLength)
+{
+	float step = floor(stepLength + 0.5); //texel offset may not need w/correct sampler...
+	float bestDistance = 99999.0;
+	float2 bestCoord = float2(0, 0);
+	for (int y = -1; y <= 1; ++y) {
+		for (int x = -1; x <= 1; ++x) {
+			float2 sampleCoord = fragCoord + float2(x, y) * step;
+			float4 data = Result[sampleCoord];
+			float dist = length(data.xy - fragCoord);
+			if ( dist < bestDistance)
+			{
+				bestDistance = dist;
+				bestCoord = data.xy;
+				
+			}
+		}
+	}
+	float4 retval = bestCoord.xyyy;
+	retval.z = bestDistance;
+	retval.w = 1;
+	return retval;
+}
+
+
+[numthreads(8, 8, 1)]
+void CSTempInit(uint3 dispatchThreadID : SV_DispatchThreadID)
+{
+	Result[dispatchThreadID.xy] = SeedBuffer[dispatchThreadID.x + dispatchThreadID.y*_width].r *float4(dispatchThreadID.xy, 0, 1);
+}
+
+[numthreads(8,8,1)]
+void CSMain(uint3 groupID : SV_GroupID, uint3 dispatchThreadID : SV_DispatchThreadID, uint3 groupThreadID : SV_GroupThreadID, uint groupIndex : SV_GroupIndex)
+{
+	
+
+	Result[dispatchThreadID.xy] = JFAIteration(dispatchThreadID.xy, 64);
+	Result[dispatchThreadID.xy] = JFAIteration(dispatchThreadID.xy, 32);
+	Result[dispatchThreadID.xy] = JFAIteration(dispatchThreadID.xy, 16);
+	Result[dispatchThreadID.xy] = JFAIteration(dispatchThreadID.xy, 8);
+	Result[dispatchThreadID.xy] = JFAIteration(dispatchThreadID.xy, 4);
+	Result[dispatchThreadID.xy] = JFAIteration(dispatchThreadID.xy, 2);
+	Result[dispatchThreadID.xy] = JFAIteration(dispatchThreadID.xy, 1);
+	
+	//Result[dispatchThreadID.xy] = float4(0, (dispatchThreadID.x & 15) / 15.0, (dispatchThreadID.y & 15) / 15.0, 0.0)+SeedBuffer[dispatchThreadID.x + dispatchThreadID.y*_width];
+}
+
+
+//Thats the way to do it eventually
+//[numthreads(8, 1, 1)]
+//void CSInit(uint3 groupID : SV_GroupID, uint3 dispatchThreadID : SV_DispatchThreadID, uint3 groupThreadID : SV_GroupThreadID, uint groupIndex : SV_GroupIndex)
+//{
+//	float4 val = SeedBuffer[dispatchThreadID.x + dispatchThreadID.y*_seedBufferWidth];
+//	Result[val.xy] = val.w;//or a colorvalue;
+//}
+
+//create a compute shader init for setting an area dirty to be reinvoked w/offset
+
+
