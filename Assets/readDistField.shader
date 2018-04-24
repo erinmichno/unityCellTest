@@ -51,6 +51,9 @@
 				// apply fog
 				UNITY_APPLY_FOG(i.fogCoord, col);
 				col.xyz = col.bbb/25.0;
+				
+				//col = (1.0 - col.b / 25.0).xxxx;
+				// col = col.x*(0.5 + 0.5*sin(64.0*col.x))*float4(1.0, 1.0, 1.0, 1.0);
 				return col;
 			}
 			ENDCG

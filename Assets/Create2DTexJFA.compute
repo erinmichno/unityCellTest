@@ -1,13 +1,17 @@
 ﻿// Each #kernel tells which function to compile; you can have many kernels
 #pragma kernel CSMain
-#pragma kernel CSTempInit
+#pragma kernel CSInit
+#pragma kernel CSClear
 
 // Create a RenderTexture with enableRandomWrite flag and set it
 // with cs.SetTexture
 StructuredBuffer<float4> SeedBuffer;
+RWTexture2D<float4> StartingTexture;
 RWTexture2D<float4> Result;
 int _width;
 int _seedBufferWidth;
+
+
 
 //float4 EncodeData(in float2 coord, in float3 color)
 //{
@@ -77,14 +81,19 @@ void CSMain(uint3 groupID : SV_GroupID, uint3 dispatchThreadID : SV_DispatchThre
 	//Result[dispatchThreadID.xy] = float4(0, (dispatchThreadID.x & 15) / 15.0, (dispatchThreadID.y & 15) / 15.0, 0.0)+SeedBuffer[dispatchThreadID.x + dispatchThreadID.y*_width];
 }
 
+[numthreads(8, 8, 1)]
+void CSClear(uint3 dispatchThreadID : SV_DispatchThreadID)
+{
+	Result[dispatchThreadID.xy] = float4(0, 0, 0, 0);
+}
 
 //Thats the way to do it eventually
-//[numthreads(8, 1, 1)]
-//void CSInit(uint3 groupID : SV_GroupID, uint3 dispatchThreadID : SV_DispatchThreadID, uint3 groupThreadID : SV_GroupThreadID, uint groupIndex : SV_GroupIndex)
-//{
-//	float4 val = SeedBuffer[dispatchThreadID.x + dispatchThreadID.y*_seedBufferWidth];
-//	Result[val.xy] = val.w;//or a colorvalue;
-//}
+[numthreads(8, 1, 1)]
+void CSInit(uint3 groupID : SV_GroupID, uint3 dispatchThreadID : SV_DispatchThreadID, uint3 groupThreadID : SV_GroupThreadID, uint groupIndex : SV_GroupIndex)
+{
+	float4 val = SeedBuffer[dispatchThreadID.x];
+	Result[val.xy] = float4(val.xy,0.0, 0.0);//or a colorvalue;
+}
 
 //create a compute shader init for setting an area dirty to be reinvoked w/offset
 
