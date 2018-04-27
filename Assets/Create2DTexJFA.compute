@@ -3,13 +3,14 @@
 #pragma kernel CSInit
 #pragma kernel CSClear
 
+
 // Create a RenderTexture with enableRandomWrite flag and set it
 // with cs.SetTexture
-StructuredBuffer<float4> SeedBuffer;
-RWTexture2D<float4> StartingTexture;
+StructuredBuffer<float2> SeedBuffer;
 RWTexture2D<float4> Result;
-int _width;
-int _seedBufferWidth;
+int SeedCount;
+
+
 
 
 
@@ -38,37 +39,66 @@ float4 JFAIteration(in float2 fragCoord, in float stepLength)
 {
 	float step = floor(stepLength + 0.5); //texel offset may not need w/correct sampler...
 	float bestDistance = 99999.0;
-	float2 bestCoord = float2(0, 0);
+	
+	int bestIndex = 0;
+	
 	for (int y = -1; y <= 1; ++y) {
 		for (int x = -1; x <= 1; ++x) {
 			float2 sampleCoord = fragCoord + float2(x, y) * step;
 			float4 data = Result[sampleCoord];
-			float dist = length(data.xy - fragCoord);
+			int indexClosest = floor(data.x + 0.1);
+			float dist = length(SeedBuffer[indexClosest].xy - fragCoord);
 			if ( dist < bestDistance)
 			{
 				bestDistance = dist;
-				bestCoord = data.xy;
-				
+				bestIndex = indexClosest; 
+			}
+			
+			
+		}
+	}
+	float4 retval = bestIndex.xxxx;
+	retval.y = bestDistance;
+	return retval;
+}
+
+float4 JFASECONDBest(in float2 fragCoord, in float stepLength)
+{
+	float step = floor(stepLength + 0.5); //texel offset may not need w/correct sampler...
+	float bestDistance = 99999.0;
+
+	int bestIndex = 0;
+
+	for (int y = -1; y <= 1; ++y) {
+		for (int x = -1; x <= 1; ++x) {
+			float2 sampleCoord = fragCoord + float2(x, y) * step;
+			float4 data = Result[sampleCoord];
+			int indexClosest = floor(data.x + 0.1);
+			float dist = length(SeedBuffer[indexClosest].xy - fragCoord);
+			if (dist < bestDistance && Result[fragCoord].x != indexClosest)
+			{
+				bestDistance = dist;
+				bestIndex = indexClosest;
 			}
 		}
 	}
-	float4 retval = bestCoord.xyyy;
-	retval.z = bestDistance;
-	retval.w = 1;
+	float4 retval;
+	retval.xy = Result[fragCoord].xy; //actual best
+	retval.z = bestIndex; //should be 2nd best
+	retval.w = bestDistance;
 	return retval;
 }
 
 
-[numthreads(8, 8, 1)]
-void CSTempInit(uint3 dispatchThreadID : SV_DispatchThreadID)
-{
-	Result[dispatchThreadID.xy] = SeedBuffer[dispatchThreadID.x + dispatchThreadID.y*_width].r *float4(dispatchThreadID.xy, 0, 1);
-}
+
+
+
+
 
 [numthreads(8,8,1)]
 void CSMain(uint3 groupID : SV_GroupID, uint3 dispatchThreadID : SV_DispatchThreadID, uint3 groupThreadID : SV_GroupThreadID, uint groupIndex : SV_GroupIndex)
 {
-	
+
 
 	Result[dispatchThreadID.xy] = JFAIteration(dispatchThreadID.xy, 64);
 	Result[dispatchThreadID.xy] = JFAIteration(dispatchThreadID.xy, 32);
@@ -77,9 +107,21 @@ void CSMain(uint3 groupID : SV_GroupID, uint3 dispatchThreadID : SV_DispatchThre
 	Result[dispatchThreadID.xy] = JFAIteration(dispatchThreadID.xy, 4);
 	Result[dispatchThreadID.xy] = JFAIteration(dispatchThreadID.xy, 2);
 	Result[dispatchThreadID.xy] = JFAIteration(dispatchThreadID.xy, 1);
-	
-	//Result[dispatchThreadID.xy] = float4(0, (dispatchThreadID.x & 15) / 15.0, (dispatchThreadID.y & 15) / 15.0, 0.0)+SeedBuffer[dispatchThreadID.x + dispatchThreadID.y*_width];
+
+
+	Result[dispatchThreadID.xy] = JFASECONDBest(dispatchThreadID.xy, 64);
+	Result[dispatchThreadID.xy] = JFASECONDBest(dispatchThreadID.xy, 32);
+	Result[dispatchThreadID.xy] = JFASECONDBest(dispatchThreadID.xy, 16);
+	Result[dispatchThreadID.xy] = JFASECONDBest(dispatchThreadID.xy, 8);
+	Result[dispatchThreadID.xy] = JFASECONDBest(dispatchThreadID.xy, 4);
+	Result[dispatchThreadID.xy] = JFASECONDBest(dispatchThreadID.xy, 2);
+	Result[dispatchThreadID.xy] = JFASECONDBest(dispatchThreadID.xy, 1);
+
 }
+
+
+
+
 
 [numthreads(8, 8, 1)]
 void CSClear(uint3 dispatchThreadID : SV_DispatchThreadID)
@@ -91,8 +133,9 @@ void CSClear(uint3 dispatchThreadID : SV_DispatchThreadID)
 [numthreads(8, 1, 1)]
 void CSInit(uint3 groupID : SV_GroupID, uint3 dispatchThreadID : SV_DispatchThreadID, uint3 groupThreadID : SV_GroupThreadID, uint groupIndex : SV_GroupIndex)
 {
-	float4 val = SeedBuffer[dispatchThreadID.x];
-	Result[val.xy] = float4(val.xy,0.0, 0.0);//or a colorvalue;
+	float2 val = SeedBuffer[dispatchThreadID.x];
+							//index of best     //next closest (set to farthest to start will be overwritten)
+	Result[val.xy] = float4(dispatchThreadID.x, 0.0, SeedCount - 1, 0.0);//or a colorvalue;
 }
 
 //create a compute shader init for setting an area dirty to be reinvoked w/offset
