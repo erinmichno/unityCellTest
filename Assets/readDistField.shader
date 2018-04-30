@@ -52,7 +52,7 @@
 			{
 				// sample the texture
 				fixed4 col = tex2D(_MainTex, i.uv);
-			col.xyz = (col.g / 25).xxx;
+			col.xyz = (col.b ).xxx;
 
 		
 			
