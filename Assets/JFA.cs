@@ -114,8 +114,8 @@ public class JFA : MonoBehaviour {
         //seeds[seedCount - 2] = 999; //last seed is off map to help define a -1 / unknown state
         //seeds[seedCount - 1] = 999;
 
-        PopulateSecondSeedData();
-        secondBuffer.SetData(seconds);
+       // PopulateSecondSeedData();
+       // secondBuffer.SetData(seconds);
 
         seedBuffer.SetData(seeds);
     }

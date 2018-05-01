@@ -55,17 +55,22 @@
 			//col.rgb = (col.w / 32.0).xxx;
 			float dis = abs(col.w - col.g);
 
-
+			/*col.xyz = col.www;
+			if (col.w < 2)
+			{
+				col.rgb = float3(1, 0, 0);
+			}*/
 			
 
 			
 				
-				col.a = 1;
+				
 
-				//col = (1.0 - col.b / 25.0).xxxx;
-				// col = col.x*(0.5 + 0.5*sin(64.0*col.x))*float4(1.0, 1.0, 1.0, 1.0);
-				col.xyz = lerp(float3(1.0, 0.6, 0.0), col.g/25.0, smoothstep(0, 3, dis));
-				//col.xyz = lerp( col.ggg/25, float3(1.0, 0.6, 0.0), smoothstep(0, 0.1, col.b));
+				
+			col.xyz = lerp(float3(1.0, 0.6, 0.0), col.g / 25.0, smoothstep(0, 3, dis));
+			//	col.xyz = lerp(float3(1.0, 0.6, 0.0), col.g/25.0, smoothstep(0, 3, col.w));
+				//col.xyz = lerp( col.ggg/25, float3(1.0, 0.6, 0.0), smoothstep(0, 0.1, col.w));
+			col.w = 1.0;
 				return col;
 			}
 			ENDCG

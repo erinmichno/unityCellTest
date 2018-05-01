@@ -71,7 +71,8 @@ float4 JFAIteration(in float2 fragCoord, in float stepLength)
 			
 		}
 	}
-	float4 retval = bestIndex.xxxx;
+	float4 retval = Result[fragCoord];
+		retval.x = bestIndex;
 	retval.y = bestDistance;
 	//retval.z = nextBestIndex; //should be 2nd best
 	//retval.w = nextBestDist;
@@ -132,6 +133,16 @@ void CSMain(uint3 groupID : SV_GroupID, uint3 dispatchThreadID : SV_DispatchThre
 	Result[dispatchThreadID.xy] = JFASECONDBest(dispatchThreadID.xy, 4);
 	Result[dispatchThreadID.xy] = JFASECONDBest(dispatchThreadID.xy, 2);
 	Result[dispatchThreadID.xy] = JFASECONDBest(dispatchThreadID.xy, 1);
+
+
+	//float4 res = Result[dispatchThreadID.xy];
+	//float2 a = SeedBuffer[floor(res.r + 0.1)].xy;
+	//float2 b = SeedBuffer[floor(res.b+0.1)].xy;
+	//float2 midpoint = (a + b)*0.5;
+	//
+	//res.w = abs(dot((dispatchThreadID.xy - midpoint), normalize(b-a))); //distance
+	//Result[dispatchThreadID.xy] = res;
+	
 	
 }
 
@@ -152,8 +163,8 @@ void CSInit(uint3 groupID : SV_GroupID, uint3 dispatchThreadID : SV_DispatchThre
 	float2 val = SeedBuffer[dispatchThreadID.x];
 							//index of best     //next closest (set to farthest to start will be overwritten)
 
-	int secondBest = dispatchThreadID.x + 1 % SeedCount; //seed a next best not nec optimal
-	int secondDist = length(val - SeedBuffer[secondBest]);
+	//int secondBest = dispatchThreadID.x + 1 % SeedCount; //seed a next best not nec optimal
+	//int secondDist = length(val - SeedBuffer[secondBest]);
 
 	float2 sec = SecondBuffer[dispatchThreadID.x];
 	Result[val.xy] = float4(dispatchThreadID.x, 0.0, sec.x, sec.y);//or a colorvalue;
