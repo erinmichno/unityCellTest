@@ -114,7 +114,7 @@ float4 JFASECONDBest(in float2 fragCoord, in float stepLength)
 [numthreads(8,8,1)]
 void CSMain(uint3 groupID : SV_GroupID, uint3 dispatchThreadID : SV_DispatchThreadID, uint3 groupThreadID : SV_GroupThreadID, uint groupIndex : SV_GroupIndex)
 {
-
+	
 
 	Result[dispatchThreadID.xy] = JFAIteration(dispatchThreadID.xy, 64);
 	Result[dispatchThreadID.xy] = JFAIteration(dispatchThreadID.xy, 32);
@@ -132,7 +132,7 @@ void CSMain(uint3 groupID : SV_GroupID, uint3 dispatchThreadID : SV_DispatchThre
 	Result[dispatchThreadID.xy] = JFASECONDBest(dispatchThreadID.xy, 4);
 	Result[dispatchThreadID.xy] = JFASECONDBest(dispatchThreadID.xy, 2);
 	Result[dispatchThreadID.xy] = JFASECONDBest(dispatchThreadID.xy, 1);
-
+	
 }
 
 
