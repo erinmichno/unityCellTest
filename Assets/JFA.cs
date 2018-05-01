@@ -12,24 +12,42 @@ public class JFA : MonoBehaviour {
    const int res = 128;
     const int seedCount = 32; // /8 
     ComputeBuffer seedBuffer;
+    ComputeBuffer secondBuffer;
     float[] seeds = new float[seedCount * 2];
+    float[] seconds = new float[seedCount * 2];
     Vector2[] seedVelocity = new Vector2[seedCount];
     // Use this for initialization
 
      Texture2D pallete;
     Material outputMaterial;
+
+    void PopulateSecondSeedData()
+    {
+        for (int i = 0; i < seedCount * 2; i += 2)
+        {
+            seconds[i + 0] = ((i / 2) + 1) % seedCount; //int division
+            Vector2 featurePt = new Vector2(seeds[i], seeds[i + 1]);
+            Vector2 secondPt = new Vector2(seeds[(int)seconds[i + 0] * 2], seeds[(int)seconds[i + 0] * 2 + 1]);
+            seconds[i + 1] = (secondPt - featurePt).magnitude;//dist
+        }
+    }
     void Start () {
       
         seedBuffer = new ComputeBuffer(seedCount, sizeof(float)*2, ComputeBufferType.Default); //could make low res and expand
-        
+        secondBuffer = new ComputeBuffer(seedCount, sizeof(float) * 2, ComputeBufferType.Default);
+
+
         for (int i = 0; i < seedCount*2; i += 2)
         {
             seeds[i + 0] = Random.Range(0, res);
             seeds[i + 1] = Random.Range(0, res);
+
            
-            
         }
-        for(int i = 0; i < seedCount; ++i)
+        PopulateSecondSeedData();
+        secondBuffer.SetData(seconds);
+
+            for (int i = 0; i < seedCount; ++i)
         {
             seedVelocity[i] = Random.insideUnitCircle * 0.1f;
         }
@@ -66,9 +84,11 @@ public class JFA : MonoBehaviour {
 
         jfaComputeShader.SetBuffer(0, "SeedBuffer", seedBuffer);
         jfaComputeShader.SetBuffer(1, "SeedBuffer", seedBuffer);
-        
 
-        
+       
+        jfaComputeShader.SetBuffer(1, "SecondBuffer", secondBuffer);
+
+
 
         jfaComputeShader.Dispatch(2, res / 8, res / 8, 1); //clear
         jfaComputeShader.Dispatch(1, seedCount/8 , 1, 1); //seed 
@@ -78,7 +98,7 @@ public class JFA : MonoBehaviour {
 	void Update () {
 
        
-          jfaComputeShader.Dispatch(1, seedCount/8 , 1, 1); //seed 
+      
           jfaComputeShader.Dispatch(0, res / 8, res / 8, 1); //just a test
     }
 
@@ -91,19 +111,24 @@ public class JFA : MonoBehaviour {
             seeds[i + 0] = seeds[i + 0] % res;
             seeds[i + 1] = seeds[i + 1] % res;
         }
-        seeds[seedCount - 2] = 999; //last seed is off map to help define a -1 / unknown state
-        seeds[seedCount - 1] = 999;
+        //seeds[seedCount - 2] = 999; //last seed is off map to help define a -1 / unknown state
+        //seeds[seedCount - 1] = 999;
+
+        PopulateSecondSeedData();
+        secondBuffer.SetData(seconds);
 
         seedBuffer.SetData(seeds);
     }
 
     private void OnPostRender()
     {
-        jfaComputeShader.Dispatch(2, res / 8, res / 8, 1); //clear
+       // jfaComputeShader.Dispatch(2, res / 8, res / 8, 1); //clear
+        jfaComputeShader.Dispatch(1, seedCount / 8, 1, 1); //seed 
     }
 
     private void OnDestroy()
     {
         seedBuffer.Release();
+        secondBuffer.Release();
     }
 }

@@ -7,6 +7,7 @@
 // Create a RenderTexture with enableRandomWrite flag and set it
 // with cs.SetTexture
 StructuredBuffer<float2> SeedBuffer;
+StructuredBuffer<float2> SecondBuffer;
 RWTexture2D<float4> Result;
 int SeedCount;
 
@@ -39,8 +40,10 @@ float4 JFAIteration(in float2 fragCoord, in float stepLength)
 {
 	float step = floor(stepLength + 0.5); //texel offset may not need w/correct sampler...
 	float bestDistance = 99999.0;
-	
 	int bestIndex = 0;
+//Currently using two passes to obtain the second best distance can be optimised into 1
+//	float nextBestDist = 9999; //999
+//	float nextBestIndex = 31; // starts at 31 the offsite 
 	
 	for (int y = -1; y <= 1; ++y) {
 		for (int x = -1; x <= 1; ++x) {
@@ -50,15 +53,28 @@ float4 JFAIteration(in float2 fragCoord, in float stepLength)
 			float dist = length(SeedBuffer[indexClosest].xy - fragCoord);
 			if ( dist < bestDistance)
 			{
+				//move "best" to second best
+				
+					//nextBestDist = bestDistance;
+					//nextBestIndex = bestIndex;
+				
+
 				bestDistance = dist;
 				bestIndex = indexClosest; 
 			}
+			//else if (dist < nextBestDist && dist != bestDistance)//may be good enough
+			//{
+			//	nextBestDist = dist;
+			//	nextBestIndex = indexClosest;
+			//}
 			
 			
 		}
 	}
 	float4 retval = bestIndex.xxxx;
 	retval.y = bestDistance;
+	//retval.z = nextBestIndex; //should be 2nd best
+	//retval.w = nextBestDist;
 	return retval;
 }
 
@@ -73,7 +89,7 @@ float4 JFASECONDBest(in float2 fragCoord, in float stepLength)
 		for (int x = -1; x <= 1; ++x) {
 			float2 sampleCoord = fragCoord + float2(x, y) * step;
 			float4 data = Result[sampleCoord];
-			int indexClosest = floor(data.x + 0.1);
+			int indexClosest = floor(data.z + 0.1); //note the z for the second best grab not the best
 			float dist = length(SeedBuffer[indexClosest].xy - fragCoord);
 			if (dist < bestDistance && Result[fragCoord].x != indexClosest)
 			{
@@ -135,7 +151,13 @@ void CSInit(uint3 groupID : SV_GroupID, uint3 dispatchThreadID : SV_DispatchThre
 {
 	float2 val = SeedBuffer[dispatchThreadID.x];
 							//index of best     //next closest (set to farthest to start will be overwritten)
-	Result[val.xy] = float4(dispatchThreadID.x, 0.0, SeedCount - 1, 0.0);//or a colorvalue;
+
+	int secondBest = dispatchThreadID.x + 1 % SeedCount; //seed a next best not nec optimal
+	int secondDist = length(val - SeedBuffer[secondBest]);
+
+	float2 sec = SecondBuffer[dispatchThreadID.x];
+	Result[val.xy] = float4(dispatchThreadID.x, 0.0, sec.x, sec.y);//or a colorvalue;
+	//Result[val.xy] = float4(dispatchThreadID.x, 0.0, secondBest, secondDist);
 }
 
 //create a compute shader init for setting an area dirty to be reinvoked w/offset
