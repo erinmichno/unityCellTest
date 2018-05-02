@@ -68,7 +68,7 @@
 
 				
 			col.xyz = lerp(float3(1.0, 0.6, 0.0), col.g / 25.0, smoothstep(0, 3, dis));
-			//	col.xyz = lerp(float3(1.0, 0.6, 0.0), col.g/25.0, smoothstep(0, 3, col.w));
+			//	col.xyz = lerp(float3(0.2, 0.05, 0.1), col.g/25.0, smoothstep(0, 3, col.w));
 				//col.xyz = lerp( col.ggg/25, float3(1.0, 0.6, 0.0), smoothstep(0, 0.1, col.w));
 			col.w = 1.0;
 				return col;

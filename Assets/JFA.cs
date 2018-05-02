@@ -106,8 +106,8 @@ public class JFA : MonoBehaviour {
     {
         for (int i = 0; i < seedCount; i += 2)
         {
-            seeds[i + 0] += seedVelocity[i + 0].x;
-            seeds[i + 1] += seedVelocity[i + 1].y;
+            seeds[i + 0] += seedVelocity[i ].x;
+            seeds[i + 1] += seedVelocity[i ].y;
             seeds[i + 0] = seeds[i + 0] % res;
             seeds[i + 1] = seeds[i + 1] % res;
         }
