@@ -127,8 +127,8 @@ Shader "raymarcher"
 			float3 pNear = i.ray_o + i.ray_d*tNear;
 			float3 pFar = i.ray_o + i.ray_d*tFar;
 			// convert to texture space
-			pNear = pNear + 0.5;
-			pFar = pFar + 0.5;
+			pNear = pNear + 0.5.xxx;
+			pFar = pFar + 0.5.xxx;
 			float3 ray_pos = pNear;
 			float3 ray_dir = pFar - pNear;
 
@@ -151,7 +151,7 @@ Shader "raymarcher"
 
 				float4 src = get_data4(p); //color data
 
-				src.a *= 0.15; //was 0.5
+				src.a *= 0.5; //was 0.5
 				src.rgb *= src.a;
 
 				// blend

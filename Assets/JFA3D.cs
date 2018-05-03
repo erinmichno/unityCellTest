@@ -4,14 +4,18 @@ using UnityEngine;
 
 struct DataType
 {
-   public Vector3 pos;
+    public float x;
+    public float y;
+    public float z;
+    
 }
 
 
-public class JFA3D : MonoBehaviour {
+public class JFA3D : MonoBehaviour
+{
 
-    const int seedCount = 32;
-    DataType[] data = new DataType[seedCount];
+    const int seedCount = 128;
+    float[] data = new float[seedCount*3];
     ComputeBuffer seedBuffer;
     Vector3[] seedVelocity = new Vector3[seedCount];
     RenderTexture rt;
@@ -20,27 +24,30 @@ public class JFA3D : MonoBehaviour {
     Material outputRayMarchingMaterial;
 
     // Use this for initialization
-    void Start () {
+    void Start()
+    {
 
-        seedBuffer = new ComputeBuffer(data.Length, 3*sizeof(float));
+        seedBuffer = new ComputeBuffer(seedCount, 3 * sizeof(float));
         //init
-        for(int i = 0; i < data.Length; ++i)
+        for (int i = 0; i < seedCount*3; i +=3)
         {
-            data[i].pos = Random.insideUnitSphere * (res / 2);
-            seedVelocity[i] = Random.insideUnitSphere * 0.1f;
+            data[i + 0] = Random.value * (res-5)+2;
+            data[i + 1] = Random.value * (res-5)+2;
+            data[i+2] = Random.value * (res-5) +2;
+            seedVelocity[i/3] = Random.insideUnitSphere * 0.1f;
         }
 
         seedBuffer.SetData(data);
 
 
 
-        rt = new RenderTexture(res, res, 0, RenderTextureFormat.ARGBHalf, RenderTextureReadWrite.Linear);
+        rt = new RenderTexture(res, res, 0, RenderTextureFormat.ARGBFloat, RenderTextureReadWrite.Linear);
         rt.wrapMode = TextureWrapMode.Clamp;
         rt.filterMode = FilterMode.Bilinear;//may need to be point
         rt.enableRandomWrite = true;
         rt.dimension = UnityEngine.Rendering.TextureDimension.Tex3D;
         rt.volumeDepth = res;
-        rt.useMipMap = false;
+       // rt.useMipMap = true;
         rt.Create();
 
         outputRayMarchingMaterial = GetComponent<MeshRenderer>().sharedMaterial;
@@ -50,15 +57,67 @@ public class JFA3D : MonoBehaviour {
         jfaComputeShader.SetInt("SeedCount", seedCount);
         jfaComputeShader.SetTexture(0, "Result", rt);
         jfaComputeShader.SetTexture(1, "Result", rt);
-        
+        jfaComputeShader.SetTexture(2, "Result", rt);
+
 
         jfaComputeShader.SetBuffer(0, "SeedBuffer", seedBuffer);
         jfaComputeShader.SetBuffer(1, "SeedBuffer", seedBuffer);
 
+        jfaComputeShader.Dispatch(2, res / 8, res / 8, res / 8); //seed 
+        jfaComputeShader.Dispatch(1, seedCount / 8, 1, 1); //seed 
+
     }
-	
-	// Update is called once per frame
-	void Update () {
+
+    // Update is called once per frame
+    void Update()
+    {
+        
         jfaComputeShader.Dispatch(0, res / 8, res / 8, res/8); //just a test
+        jfaComputeShader.Dispatch(1, seedCount / 8, 1, 1); //seed 
+
+    }
+   
+
+    private float Wrap0Res(float d)
+    {
+        float amt = res - 5;
+        if(d < 0)
+        {
+            return d + amt;
+        }
+        if(d >= amt)
+        {
+            return d - amt;
+        }
+        return d ;
+    }
+
+
+    private float Wrap(float d,  float max)
+    {
+        if(d < 0)
+        {
+            d += max;
+        }
+        if(d >= max)
+        {
+            d -= max;
+        }
+        return d;
+    }
+    private void LateUpdate()
+    {
+        for (int i = 0; i < seedCount*3; i +=3)
+        {
+            data[i] = Wrap0Res(data[i] + seedVelocity[i/3].x);
+            data[i+1] = Wrap0Res(data[i+1] + seedVelocity[i/3].y);
+            data[i+2] = Wrap0Res(data[i+2] + seedVelocity[i/3].z);
+        }
+        seedBuffer.SetData(data);
+        
+    }
+    private void OnDestroy()
+    {
+        seedBuffer.Release();
     }
 }
