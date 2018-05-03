@@ -13,9 +13,11 @@ public class JFA3D : MonoBehaviour {
     const int seedCount = 32;
     DataType[] data = new DataType[seedCount];
     ComputeBuffer seedBuffer;
-
+    Vector3[] seedVelocity = new Vector3[seedCount];
     RenderTexture rt;
     int res = 128;
+    public ComputeShader jfaComputeShader;
+    Material outputRayMarchingMaterial;
 
     // Use this for initialization
     void Start () {
@@ -25,6 +27,7 @@ public class JFA3D : MonoBehaviour {
         for(int i = 0; i < data.Length; ++i)
         {
             data[i].pos = Random.insideUnitSphere * (res / 2);
+            seedVelocity[i] = Random.insideUnitSphere * 0.1f;
         }
 
         seedBuffer.SetData(data);
@@ -40,10 +43,22 @@ public class JFA3D : MonoBehaviour {
         rt.useMipMap = false;
         rt.Create();
 
+        outputRayMarchingMaterial = GetComponent<MeshRenderer>().sharedMaterial;
+        outputRayMarchingMaterial.SetTexture("_Volume", rt);
+
+
+        jfaComputeShader.SetInt("SeedCount", seedCount);
+        jfaComputeShader.SetTexture(0, "Result", rt);
+        jfaComputeShader.SetTexture(1, "Result", rt);
+        
+
+        jfaComputeShader.SetBuffer(0, "SeedBuffer", seedBuffer);
+        jfaComputeShader.SetBuffer(1, "SeedBuffer", seedBuffer);
+
     }
 	
 	// Update is called once per frame
 	void Update () {
-		
-	}
+        jfaComputeShader.Dispatch(0, res / 8, res / 8, res/8); //just a test
+    }
 }

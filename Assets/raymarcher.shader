@@ -50,6 +50,19 @@ Shader "raymarcher"
 			float3 _Axis;
 			float4 _Color;
 
+			float4 get_data4(float3 pos) {
+				// sample texture (pos is normalized in [0,1])
+				float4 posTex = float4(pos[_Axis[0]], pos[_Axis[1]], pos[_Axis[2]], 0);
+				//0 in w is the LOD we are looking up
+				return tex3Dlod(_Volume, posTex).rgba* _Intensity;
+
+				//threshold
+				//data *= step(_DataMin, data); //assuming data is 1d here
+				//data *= step(data, _DataMax);
+
+
+			}
+
 			float get_data(float3 pos) {
 				// sample texture (pos is normalized in [0,1])
 				float4 posTex = float4(pos[_Axis[0]], pos[_Axis[1]], pos[_Axis[2]], 0);
@@ -133,9 +146,12 @@ Shader "raymarcher"
 			const int s = _Steps;
 			for (int iter = 0; iter < s; iter++) {
 				
-				float v = get_data(p);
-				float4 src = float4(v, v, v, v);
-				src.a *= 0.5;
+				//float v = get_data(p);
+				//float4 src = float4(v, v, v, v); //if b&w data only .r value needed
+
+				float4 src = get_data4(p); //color data
+
+				src.a *= 0.15; //was 0.5
 				src.rgb *= src.a;
 
 				// blend

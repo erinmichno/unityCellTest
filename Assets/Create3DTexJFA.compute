@@ -1,0 +1,27 @@
+﻿// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSMain
+#pragma kernel CSInit
+
+// Create a RenderTexture with enableRandomWrite flag and set it
+// with cs.SetTexture
+RWTexture3D<float4> Result;
+StructuredBuffer<float3> SeedBuffer;
+int SeedCount;
+
+[numthreads(8,8,8)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+	// TODO: insert actual code here!
+	
+	Result[id.xyz] = float4((id.z &64)/ 64.0, (id.x & 64)/ 64.0, (id.y & 64)/ 64.0, 1.0);
+}
+
+[numthreads(8, 1, 1)]
+void CSInit(uint3 groupID : SV_GroupID, uint3 dispatchThreadID : SV_DispatchThreadID, uint3 groupThreadID : SV_GroupThreadID, uint groupIndex : SV_GroupIndex)
+{
+	float3 val = SeedBuffer[dispatchThreadID.x];
+	
+	Result[val.xyz] = float4(dispatchThreadID.x, 0.0, 0, 0);//or a colorvalue;
+																   //Result[val.xy] = float4(dispatchThreadID.x, 0.0, secondBest, secondDist);
+}
+
