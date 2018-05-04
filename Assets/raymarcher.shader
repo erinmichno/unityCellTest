@@ -54,8 +54,12 @@ Shader "raymarcher"
 				// sample texture (pos is normalized in [0,1])
 				float4 posTex = float4(pos[_Axis[0]], pos[_Axis[1]], pos[_Axis[2]], 0);
 				//0 in w is the LOD we are looking up
-				return tex3Dlod(_Volume, posTex).rgba* _Intensity;
+				float4 data =  tex3Dlod(_Volume, posTex).rgba* _Intensity;
 
+				//data.rgb = data.www ;
+				data.a = 1;
+				//data.rgb = data.rrr ;
+				return data;
 				//threshold
 				//data *= step(_DataMin, data); //assuming data is 1d here
 				//data *= step(data, _DataMax);
