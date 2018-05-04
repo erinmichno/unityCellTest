@@ -73,16 +73,22 @@ Shader "raymarcher"
 				//data.rgba = palColor *clamp(1-data.g/255.0, 0, 1);
 
 				//option 2 pal and point
-				float distance = data.g;
+				/*float distance = data.g;
 				distance =  step(2, data.g);
 				float4 f = tex2D(_Palette, float2(data.r / _SeedNumber, 1));
 				f.a = 0.1;
-				data.rgba = f*distance + (1-distance)*float4(4,4,4,1);
+				data.rgba = f*distance + (1-distance)*float4(4,4,4,1);*/
 
 
 				//option 3 distance field comment out others
-				/*data.rgb = data.ggg / 75;
-				data.a = 0.5;*/
+				data.rgb =  (data.w - data.g) / 50;
+
+				data.a = 0.8;// clamp(smoothstep(0, 15, data.r), 0, 1);
+				/*float dis = abs(data.w - data.g);
+				
+				data.xyzw = lerp(float4(1.0, 0.6, 0.0, 1.0), float4((data.g / 75.0).xxx,0.01), step(1, dis));*/
+			
+				
 
 				return data;
 				//threshold
@@ -185,8 +191,11 @@ Shader "raymarcher"
 
 				// blend
 				dst = (1.0 - dst.a) * src + dst;
+
+				
 				p += ray_step;
 
+				//NOTE UNCOMENT THIS OR DEAL WITH ALPHA OVER 1 exit condition
 				/*if (dst.a > _Threshold) {
 					break;
 				}*/

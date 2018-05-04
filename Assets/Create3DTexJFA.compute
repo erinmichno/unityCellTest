@@ -36,12 +36,36 @@ float4 JFAIteration(in float3 fragCoord, in float stepLength)
 	float4 retval = Result[fragCoord];
 	retval.x = bestIndex;
 	retval.y = bestDistance;
-
-	/*retval.x = fragCoord.x/128.0;
-	retval.y = fragCoord.y/128.0;*/
 	return retval;
 }
 
+float4 JFA2ndBest(in float3 fragCoord, in float stepLength)
+{
+	float step = floor(stepLength + 0.5); //texel offset may not need w/correct sampler...
+	float bestDistance = 9999999.0;
+	int bestIndex = 0;
+
+	for (int z = -1; z <= 1; ++z) {
+		for (int y = -1; y <= 1; ++y) {
+			for (int x = -1; x <= 1; ++x) {
+
+				float3 sampleCoord = fragCoord + float3(x, y, z) * step;
+				float4 data = Result[sampleCoord];
+				int indexClosest = floor(data.z + 0.1);
+				float dist = length(SeedBuffer[indexClosest].xyz - fragCoord);
+				if (dist < bestDistance && indexClosest != Result[fragCoord].x)
+				{
+					bestDistance = dist;
+					bestIndex = indexClosest;
+				}
+			}
+		}
+	}
+	float4 retval = Result[fragCoord];
+	retval.z = bestIndex;
+	retval.w = bestDistance;
+	return retval;
+}
 
 
 
@@ -58,6 +82,14 @@ void CSMain (uint3 groupID : SV_GroupID, uint3 dispatchThreadID : SV_DispatchThr
 	Result[dispatchThreadID.xyz] = JFAIteration(dispatchThreadID.xyz, 4);
 	Result[dispatchThreadID.xyz] = JFAIteration(dispatchThreadID.xyz, 2);
 	Result[dispatchThreadID.xyz] = JFAIteration(dispatchThreadID.xyz, 1);
+
+	Result[dispatchThreadID.xyz] = JFA2ndBest(dispatchThreadID.xyz, 64);
+	Result[dispatchThreadID.xyz] = JFA2ndBest(dispatchThreadID.xyz, 32);
+	Result[dispatchThreadID.xyz] = JFA2ndBest(dispatchThreadID.xyz, 16);
+	Result[dispatchThreadID.xyz] = JFA2ndBest(dispatchThreadID.xyz, 8);
+	Result[dispatchThreadID.xyz] = JFA2ndBest(dispatchThreadID.xyz, 4);
+	Result[dispatchThreadID.xyz] = JFA2ndBest(dispatchThreadID.xyz, 2);
+	Result[dispatchThreadID.xyz] = JFA2ndBest(dispatchThreadID.xyz, 1);
 	
 }
 
@@ -66,8 +98,12 @@ void CSInit(uint3 groupID : SV_GroupID, uint3 dispatchThreadID : SV_DispatchThre
 {
 
 	float3 val = floor(SeedBuffer[dispatchThreadID.x]);
-	//Result[val.xyz] = float4(val.xyz, 1);
-	Result[val.xyz] = float4(dispatchThreadID.x, 0.0, 0, 1);
+	
+	int secondBest = dispatchThreadID.x + 1 % SeedCount; //seed a next best not nec optimal
+	float secondDist = length(val - SeedBuffer[secondBest]);
+
+
+	Result[val.xyz] = float4(dispatchThreadID.x, 0.0, secondBest, secondDist);
 																  
 }
 
