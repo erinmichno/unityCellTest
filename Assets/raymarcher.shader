@@ -155,7 +155,7 @@ Shader "raymarcher"
 
 				float4 src = get_data4(p); //color data
 
-				src.a *= 1; //was 0.5f
+				src.a *= 0.5; //was 0.5f
 				src.rgb *= src.a;
 
 				// blend

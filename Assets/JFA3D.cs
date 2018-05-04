@@ -14,7 +14,7 @@ struct DataType
 public class JFA3D : MonoBehaviour
 {
 
-    const int seedCount = 8;
+    const int seedCount = 32;
     float[] data = new float[seedCount*3];
     ComputeBuffer seedBuffer;
     Vector3[] seedVelocity = new Vector3[seedCount];
@@ -108,14 +108,14 @@ public class JFA3D : MonoBehaviour
     }
     private void LateUpdate()
     {
-        //for (int i = 0; i < seedCount*3; i +=3)
-        //{
-        //    data[i] = Wrap0Res(data[i] + seedVelocity[i/3].x);
-        //    data[i+1] = Wrap0Res(data[i+1] + seedVelocity[i/3].y);
-        //    data[i+2] = Wrap0Res(data[i+2] + seedVelocity[i/3].z);
-        //}
-        //seedBuffer.SetData(data);
-        
+        for (int i = 0; i < seedCount * 3; i += 3)
+        {
+            data[i] = Wrap0Res(data[i] + seedVelocity[i / 3].x);
+            data[i + 1] = Wrap0Res(data[i + 1] + seedVelocity[i / 3].y);
+            data[i + 2] = Wrap0Res(data[i + 2] + seedVelocity[i / 3].z);
+        }
+        seedBuffer.SetData(data);
+
     }
     private void OnDestroy()
     {
