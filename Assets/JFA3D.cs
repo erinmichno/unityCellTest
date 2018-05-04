@@ -73,7 +73,7 @@ public class JFA3D : MonoBehaviour
     void Update()
     {
         jfaComputeShader.Dispatch(1, seedCount / 8, 1, 1); //seed 
-        jfaComputeShader.Dispatch(0, res / 8, res / 8, 1); //just a test
+        jfaComputeShader.Dispatch(0, res / 8, res / 8, res/8); //just a test
         
 
     }

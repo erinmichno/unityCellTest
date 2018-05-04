@@ -56,7 +56,7 @@ Shader "raymarcher"
 				//0 in w is the LOD we are looking up
 				float4 data =  tex3Dlod(_Volume, posTex).rgba* _Intensity;
 
-				data.rgb = data.ggg/25.0 ;
+				data.rgb = data.ggg/50.0 ;
 				data.a = 1;
 				//data.rgb = data.rrr ;
 				return data;
@@ -155,7 +155,7 @@ Shader "raymarcher"
 
 				float4 src = get_data4(p); //color data
 
-				src.a *= 0.5; //was 0.5
+				src.a *= 1; //was 0.5f
 				src.rgb *= src.a;
 
 				// blend

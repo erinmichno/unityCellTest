@@ -17,17 +17,19 @@ float4 JFAIteration(in float3 fragCoord, in float stepLength)
 	float bestDistance = 9999999.0;
 	int bestIndex = 0;
 
+	for (int z = -1; z <= 1; ++z) {
+		for (int y = -1; y <= 1; ++y) {
+			for (int x = -1; x <= 1; ++x) {
 
-	for (int y = -1; y <= 1; ++y) {
-		for (int x = -1; x <= 1; ++x) {
-			float3 sampleCoord = fragCoord + float3(x, y, 0) * step;
-			float4 data = Result[sampleCoord];
-			int indexClosest = floor(data.x + 0.1);
-			float dist = length(SeedBuffer[indexClosest].xyz - fragCoord);
-			if (dist < bestDistance)
-			{
-				bestDistance = dist;
-				bestIndex = indexClosest;
+				float3 sampleCoord = fragCoord + float3(x, y, z) * step;
+				float4 data = Result[sampleCoord];
+				int indexClosest = floor(data.x + 0.1);
+				float dist = length(SeedBuffer[indexClosest].xyz - fragCoord);
+				if (dist < bestDistance)
+				{
+					bestDistance = dist;
+					bestIndex = indexClosest;
+				}
 			}
 		}
 	}
@@ -44,7 +46,7 @@ float4 JFAIteration(in float3 fragCoord, in float stepLength)
 
 
 
-[numthreads(8,8,1)]
+[numthreads(8,8,8)]
 void CSMain (uint3 groupID : SV_GroupID, uint3 dispatchThreadID : SV_DispatchThreadID)
 {
 	
