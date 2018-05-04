@@ -12,6 +12,8 @@ Shader "raymarcher"
 		_Intensity("Intensity", Range(0.1, 5.0)) = 1.2
 		_Threshold("Threshold", Range(0.0, 1.0)) = 0.95
 			_Steps("Max number of steps", Range(1,1024)) = 128
+			_Palette("Palette", 2D) = ""{}
+		_SeedNumber("num of seeds", Int)= 32
 	}
 	SubShader
 	{
@@ -45,20 +47,43 @@ Shader "raymarcher"
 				float3 ray_d : TEXCOORD2; 
 			};
 
+
+			static const float3 colors[16] =
+			{
+				float3(0.5, 0.5, 0.2),float3(1, 0, 0),float3(1, 1, 0),float3(0, 1, 0),
+				float3(0, 0, 1),float3(1, 0, 1),float3(1, 1, 1),float3(0, 1, 1),
+				float3(0.25, 0.195, 0.681),float3(0.889, 0.058, 0.759),float3(0.99, 0.582, 0.617),float3(0.478, 0.142, 0.241),
+				float3(0.1, 0.33, 0.283),float3(0.089, 0.929, 0.459),float3(0.78, 0.56, 0.3),float3(0.99, 0.23, 0.12)
+			};
+
 			sampler3D _Volume;
 			half _Intensity, _Threshold;
 			float3 _Axis;
 			float4 _Color;
-
+			sampler2D _Palette;
+			int _SeedNumber;
 			float4 get_data4(float3 pos) {
 				// sample texture (pos is normalized in [0,1])
 				float4 posTex = float4(pos[_Axis[0]], pos[_Axis[1]], pos[_Axis[2]], 0);
 				//0 in w is the LOD we are looking up
 				float4 data =  tex3Dlod(_Volume, posTex).rgba* _Intensity;
+				
+				//option 1 built in pal
+				//float4 palColor = float4(colors[data.r/2], 1.0);
+				//data.rgba = palColor *clamp(1-data.g/255.0, 0, 1);
 
-				data.rgb = data.ggg/50.0 ;
-				data.a = 1;
-				//data.rgb = data.rrr ;
+				//option 2 pal and point
+				float distance = data.g;
+				distance =  step(2, data.g);
+				float4 f = tex2D(_Palette, float2(data.r / _SeedNumber, 1));
+				f.a = 0.1;
+				data.rgba = f*distance + (1-distance)*float4(4,4,4,1);
+
+
+				//option 3 distance field comment out others
+				/*data.rgb = data.ggg / 75;
+				data.a = 0.5;*/
+
 				return data;
 				//threshold
 				//data *= step(_DataMin, data); //assuming data is 1d here
@@ -162,9 +187,9 @@ Shader "raymarcher"
 				dst = (1.0 - dst.a) * src + dst;
 				p += ray_step;
 
-				if (dst.a > _Threshold) {
+				/*if (dst.a > _Threshold) {
 					break;
-				}
+				}*/
 			}
 
 			return saturate(dst) * _Color;

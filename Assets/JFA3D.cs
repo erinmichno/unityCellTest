@@ -7,14 +7,13 @@ struct DataType
     public float x;
     public float y;
     public float z;
-    
 }
 
 
 public class JFA3D : MonoBehaviour
 {
 
-    const int seedCount = 32;
+    const int seedCount = 64;
     float[] data = new float[seedCount*3];
     ComputeBuffer seedBuffer;
     Vector3[] seedVelocity = new Vector3[seedCount];
@@ -53,7 +52,7 @@ public class JFA3D : MonoBehaviour
 
         outputRayMarchingMaterial = GetComponent<MeshRenderer>().sharedMaterial;
         outputRayMarchingMaterial.SetTexture("_Volume", rt);
-
+        outputRayMarchingMaterial.SetInt("_SeedNumber", seedCount);
 
         jfaComputeShader.SetInt("SeedCount", seedCount);
         jfaComputeShader.SetTexture(0, "Result", rt);
