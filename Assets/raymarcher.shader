@@ -13,7 +13,8 @@ Shader "raymarcher"
 		_Threshold("Threshold", Range(0.0, 1.0)) = 0.95
 			_Steps("Max number of steps", Range(1,1024)) = 128
 			_Palette("Palette", 2D) = ""{}
-		_SeedNumber("num of seeds", Int)= 32
+		_SeedNumber("num of seeds", Int) = 32
+			_DistanceMod("color dist mod", Range(15,256)) = 32.0
 	}
 	SubShader
 	{
@@ -62,6 +63,7 @@ Shader "raymarcher"
 			float4 _Color;
 			sampler2D _Palette;
 			int _SeedNumber;
+			float _DistanceMod;
 			float4 get_data4(float3 pos) {
 				// sample texture (pos is normalized in [0,1])
 				float4 posTex = float4(pos[_Axis[0]], pos[_Axis[1]], pos[_Axis[2]], 0);
@@ -73,7 +75,7 @@ Shader "raymarcher"
 				//data.rgba = palColor *clamp(1-data.g/255.0, 0, 1);
 
 				//option 2 pal and point
-				/*float distance = data.g;
+			/*	float distance = data.g;
 				distance =  step(2, data.g);
 				float4 f = tex2D(_Palette, float2(data.r / _SeedNumber, 1));
 				f.a = 0.1;
@@ -81,12 +83,12 @@ Shader "raymarcher"
 
 
 				//option 3 distance field comment out others
-				data.rgb =  (data.w - data.g) / 50;
+				data.rgb =  (data.w- data.g ) / _DistanceMod;
 
 				data.a = 0.8;// clamp(smoothstep(0, 15, data.r), 0, 1);
-				/*float dis = abs(data.w - data.g);
+			//	float dis = abs(data.w - data.g);
 				
-				data.xyzw = lerp(float4(1.0, 0.6, 0.0, 1.0), float4((data.g / 75.0).xxx,0.01), step(1, dis));*/
+				//data.xyzw = lerp(float4(1.0, 0.6, 0.0, 1.0), float4((data.g / 75.0).xxx,0.01), step(1, dis));
 			
 				
 
