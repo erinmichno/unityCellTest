@@ -10,7 +10,7 @@ Shader "Custom/cellShader" {
 	SubShader {
 		Tags { "RenderType"="Transparent" "Queue" = "Transparent" }
 		LOD 200
-		Cull Off
+		//Cull Off
 		//ZWrite Off
 		Blend SrcAlpha OneMinusSrcAlpha
 
